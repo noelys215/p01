@@ -1,6 +1,7 @@
 # Import the necessary modules from the Selenium package
 from selenium import webdriver  # For controlling the web browser
 from selenium.webdriver.common.by import By  # For locating elements on the webpage
+import time
 
 
 # Define a function to create and configure a web driver instance
@@ -22,12 +23,19 @@ def get_driver():
     return driver  # Return the driver instance for further use
 
 
+def clean_text(text):
+    output = float(text.split(": ")[1])
+    return output
+
+
 # Define the main function to execute the scraping task
 def main():
     driver = get_driver()  # Get the configured web driver
+    time.sleep(2)
     # Find the target element using its XPath (XML Path Language)
-    element = driver.find_element(By.XPATH, '/html/body/div[1]/div/h1[1]')
-    return element.text.strip()  # Extract and return the text content of the element, removing any extra spaces
+    element = driver.find_element(By.XPATH, '/html/body/div[1]/div/h1[2]')
+    return clean_text(
+        element.text.strip())  # Extract and return the text content of the element, removing any extra spaces
 
 
 # Execute the main function and print the result
