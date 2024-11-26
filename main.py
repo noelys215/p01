@@ -1,26 +1,34 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+# Import the necessary modules from the Selenium package
+from selenium import webdriver  # For controlling the web browser
+from selenium.webdriver.common.by import By  # For locating elements on the webpage
 
 
+# Define a function to create and configure a web driver instance
 def get_driver():
-    # Set options to make browsing easier
+    # Set options to make browsing easier and mimic a human user
     options = webdriver.ChromeOptions()
-    options.add_argument('disable-infobars')
-    options.add_argument('start-maximized')
-    options.add_argument('disable-dev-shm-usage')
-    options.add_argument('no-sandbox')
-    options.add_experimental_option('excludeSwitches', ['enable-automation'])
-    options.add_argument('disable-blink-feature=AutomationControlled')
+    options.add_argument(
+        'disable-infobars')  # Disable the "Chrome is being controlled by automated test software" info bar
+    options.add_argument('start-maximized')  # Start the browser in maximized window mode
+    options.add_argument('disable-dev-shm-usage')  # Prevent issues with limited shared memory in some environments
+    options.add_argument('no-sandbox')  # Bypass OS security model; useful in certain server environments
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])  # Make the browser appear less automated
+    options.add_argument('disable-blink-feature=AutomationControlled')  # Prevent detection by some websites as a bot
 
+    # Initialize the Chrome web driver with the configured options
     driver = webdriver.Chrome(options=options)
+    # Open the target URL in the browser
     driver.get('https://automated.pythonanywhere.com/')
-    return driver
+    return driver  # Return the driver instance for further use
 
 
+# Define the main function to execute the scraping task
 def main():
-    driver = get_driver()
+    driver = get_driver()  # Get the configured web driver
+    # Find the target element using its XPath (XML Path Language)
     element = driver.find_element(By.XPATH, '/html/body/div[1]/div/h1[1]')
-    return element.text.strip()
+    return element.text.strip()  # Extract and return the text content of the element, removing any extra spaces
 
 
+# Execute the main function and print the result
 print(main())
