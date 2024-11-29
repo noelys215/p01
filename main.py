@@ -1,5 +1,6 @@
 # Import the necessary modules from the Selenium package
 from selenium import webdriver  # For controlling the web browser
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By  # For locating elements on the webpage
 import time
 
@@ -19,7 +20,7 @@ def get_driver():
     # Initialize the Chrome web driver with the configured options
     driver = webdriver.Chrome(options=options)
     # Open the target URL in the browser
-    driver.get('https://automated.pythonanywhere.com/')
+    driver.get('https://automated.pythonanywhere.com/login/')
     return driver  # Return the driver instance for further use
 
 
@@ -31,11 +32,12 @@ def clean_text(text):
 # Define the main function to execute the scraping task
 def main():
     driver = get_driver()  # Get the configured web driver
+    driver.find_element(by="id", value='id_username').send_keys("automated")
     time.sleep(2)
-    # Find the target element using its XPath (XML Path Language)
-    element = driver.find_element(By.XPATH, '/html/body/div[1]/div/h1[2]')
-    return clean_text(
-        element.text.strip())  # Extract and return the text content of the element, removing any extra spaces
+    driver.find_element(by="id", value='id_password').send_keys("automatedautomated" + Keys.RETURN)
+    time.sleep(2)
+    driver.find_element(By.XPATH, "/html/body/nav/div/a").click()
+    print(driver.current_url)
 
 
 # Execute the main function and print the result
