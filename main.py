@@ -32,12 +32,20 @@ def clean_text(text):
 # Define the main function to execute the scraping task
 def main():
     driver = get_driver()  # Get the configured web driver
+
+    # Fill username & password
     driver.find_element(by="id", value='id_username').send_keys("automated")
     time.sleep(2)
     driver.find_element(by="id", value='id_password').send_keys("automatedautomated" + Keys.RETURN)
     time.sleep(2)
+
+    # Click on Home and wait 2 secs
     driver.find_element(By.XPATH, "/html/body/nav/div/a").click()
-    print(driver.current_url)
+    time.sleep(2)
+
+    # Scrape the temp value
+    text = driver.find_element(By.XPATH, "/html/body/div[1]/div/h1[2]").text
+    return clean_text(text)
 
 
 # Execute the main function and print the result
