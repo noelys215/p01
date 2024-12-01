@@ -3,6 +3,7 @@ from selenium import webdriver  # For controlling the web browser
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By  # For locating elements on the webpage
 import time
+from datetime import datetime as dt
 
 
 # Define a function to create and configure a web driver instance
@@ -29,23 +30,21 @@ def clean_text(text):
     return output
 
 
-# Define the main function to execute the scraping task
+def write_file(text):
+    filename = f"{dt.now().strftime('%Y-%m-%d.%H-%M-%S')}.txt"
+    with open(filename, 'w') as file:
+        file.write(text)
+
+
 def main():
     driver = get_driver()  # Get the configured web driver
+    while True:
+        time.sleep(2)
+        element = driver.find_element(By.XPATH, "/html/body/div[1]/div/h1[2]").text
+        time.sleep(4)
 
-    # Fill username & password
-    driver.find_element(by="id", value='id_username').send_keys("automated")
-    time.sleep(2)
-    driver.find_element(by="id", value='id_password').send_keys("automatedautomated" + Keys.RETURN)
-    time.sleep(2)
-
-    # Click on Home and wait 2 secs
-    driver.find_element(By.XPATH, "/html/body/nav/div/a").click()
-    time.sleep(2)
-
-    # Scrape the temp value
-    text = driver.find_element(By.XPATH, "/html/body/div[1]/div/h1[2]").text
-    return clean_text(text)
+        text = str(clean_text(element))
+        write_file(text)
 
 
 # Execute the main function and print the result
