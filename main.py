@@ -1,51 +1,73 @@
-# Import the necessary modules from the Selenium package
-from selenium import webdriver  # For controlling the web browser
-from selenium.webdriver import Keys
-from selenium.webdriver.common.by import By  # For locating elements on the webpage
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import time
 from datetime import datetime as dt
 
 
-# Define a function to create and configure a web driver instance
 def get_driver():
-    # Set options to make browsing easier and mimic a human user
+    """Configure and return a Selenium WebDriver instance."""
     options = webdriver.ChromeOptions()
-    options.add_argument(
-        'disable-infobars')  # Disable the "Chrome is being controlled by automated test software" info bar
-    options.add_argument('start-maximized')  # Start the browser in maximized window mode
-    options.add_argument('disable-dev-shm-usage')  # Prevent issues with limited shared memory in some environments
-    options.add_argument('no-sandbox')  # Bypass OS security model; useful in certain server environments
-    options.add_experimental_option('excludeSwitches', ['enable-automation'])  # Make the browser appear less automated
-    options.add_argument('disable-blink-feature=AutomationControlled')  # Prevent detection by some websites as a bot
+    options.add_argument('disable-infobars')
+    options.add_argument('start-maximized')
+    options.add_argument('disable-dev-shm-usage')
+    options.add_argument('no-sandbox')
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_argument('disable-blink-features=AutomationControlled')
 
-    # Initialize the Chrome web driver with the configured options
     driver = webdriver.Chrome(options=options)
-    # Open the target URL in the browser
     driver.get('https://automated.pythonanywhere.com/login/')
-    return driver  # Return the driver instance for further use
+    return driver
 
 
 def clean_text(text):
-    output = float(text.split(": ")[1])
-    return output
+    """Extract and return a float from the given text."""
+    try:
+        return float(text.split(": ")[1])
+    except (IndexError, ValueError) as e:
+        print(f"Error cleaning text: {e}")
+        return None
 
 
 def write_file(text):
+    """Write the given text to a timestamped file."""
     filename = f"{dt.now().strftime('%Y-%m-%d.%H-%M-%S')}.txt"
-    with open(filename, 'w') as file:
-        file.write(text)
+    try:
+        with open(filename, 'w') as file:
+            file.write(text)
+        print(f"File saved: {filename}")
+    except Exception as e:
+        print(f"Error writing file: {e}")
 
 
 def main():
-    driver = get_driver()  # Get the configured web driver
-    while True:
-        time.sleep(2)
-        element = driver.find_element(By.XPATH, "/html/body/div[1]/div/h1[2]").text
-        time.sleep(4)
+    driver = get_driver()
+    try:
+        # Wait for the page to load
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/h1[2]")))
 
-        text = str(clean_text(element))
-        write_file(text)
+        # Loop to repeatedly scrape data
+        for _ in range(10):  # Replace 10 with the desired number of iterations
+            try:
+                # Wait for the element and get its text
+                element = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/h1[2]"))
+                )
+                text = str(clean_text(element.text))
+                if text:
+                    write_file(text)
+                time.sleep(2)  # Optional: Adjust based on how often the data changes
+            except TimeoutException:
+                print("Element not found within the timeout.")
+                continue
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        driver.quit()
+        print("Driver closed.")
 
 
-# Execute the main function and print the result
-print(main())
+if __name__ == "__main__":
+    main()
